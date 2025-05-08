@@ -30,19 +30,17 @@ class Category
     #[ORM\Column]
     private ?\DateTime $updateAt = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'categories')]
-    private ?self $category = null;
-
     /**
-     * @var Collection<int, self>
+     * @var Collection<int, Product>
      */
-    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'category')]
-    private Collection $categories;
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'category')]
+    private Collection $products;
 
     public function __construct()
     {
-        $this->categories = new ArrayCollection();
+        $this->products = new ArrayCollection();
     }
+
 
     public function getId(): ?int
     {
@@ -109,45 +107,35 @@ class Category
         return $this;
     }
 
-    public function getCategory(): ?self
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?self $category): static
-    {
-        $this->category = $category;
-
-        return $this;
-    }
-
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, Product>
      */
-    public function getCategories(): Collection
+    public function getProducts(): Collection
     {
-        return $this->categories;
+        return $this->products;
     }
 
-    public function addCategory(self $category): static
+    public function addProduct(Product $product): static
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->setCategory($this);
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+            $product->setCategory($this);
         }
 
         return $this;
     }
 
-    public function removeCategory(self $category): static
+    public function removeProduct(Product $product): static
     {
-        if ($this->categories->removeElement($category)) {
+        if ($this->products->removeElement($product)) {
             // set the owning side to null (unless already changed)
-            if ($category->getCategory() === $this) {
-                $category->setCategory(null);
+            if ($product->getCategory() === $this) {
+                $product->setCategory(null);
             }
         }
 
         return $this;
     }
+
+   
 }

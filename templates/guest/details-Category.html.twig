@@ -1,5 +1,9 @@
 {% extends 'base.html.twig' %}
 
+{% block metatitle %}
+	{{ category.title }}
+{% endblock metatitle %}
+
 {% block main %}
 
 
@@ -8,8 +12,13 @@
 	<h1>{{ category.title }}</h1>
 
 	<p>{{ category.description }}</p>
+
 	<p>{{ category.content }}</p>
+
 	<p>Créé le {{ category.createdAt | date()}}</p>
+
+	<p>Publié le {{category.upadateAt | date()}}</p>
+	
 </article>
 
 {% endblock main %}

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block metatitle %}
+	Tous les produits
+{% endblock metatitle %}
+
+{% block main %}
+
+	<h1>Liste des produits</h1>
+
+	<section class="produits-list-container">
+	
+		{% for produit in produits %}
+
+			<article class="product">
+
+				<p>{{ product.title }}</p>
+
+				<a href="{{ path('details-product', {'id': product.id}) }}"</a>
+											
+			</article>
+
+		{% endfor %}
+
+</section>
+
+{% endblock main %}
