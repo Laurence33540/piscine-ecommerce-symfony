@@ -1,37 +1,34 @@
 <?php
 
+
 namespace App\Controller\guest;
 
-use App\Entity\Category;
-use App\Form\CategoryForm;
 use App\Repository\CategoryRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class CategoryController extends AbstractController {
 
 
-	#[Route('/list-categories', name:"list-categories")]
+	#[Route('/list-categories', name:'list-categories')]
 	public function displayListCategories(CategoryRepository $categoryRepository) {
 		
-		$categories = $categoryRepository->find('title');
+		$categories = $categoryRepository->findAll();
 
-		return $this->render('guest/list-category.html.twig', [
+		return $this->render('guest/category/list-categories.html.twig', [
 			'categories' => $categories
 		]);
 	}
 
-
-	#[Route('/details-category/{id}', name: "details-category")]
-	public function displayShowCategory($id, CategoryRepository $categoryRepository) {
+	#[Route('/details-category/{id}', name:'details-category')]
+	public function displayDetailsCategory(CategoryRepository $categoryRepository, $id) {
 		
 		$category = $categoryRepository->find($id);
 
-		return $this->render('guest/details-category.html.twig', [
+		return $this->render('guest/category/details-category.html.twig', [
 			'category' => $category
 		]);
 
 	}
-		}
+
+}

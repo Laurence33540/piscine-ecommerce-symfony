@@ -1,39 +1,34 @@
 <?php
 
+
 namespace App\Controller\guest;
 
-use App\Entity\Product;
 use App\Repository\ProductRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController {
 
-	
 
-	#[Route('/list-products', name: 'list-products')]
-	public function displayListProducts(ProductRepository $ProductRepository) {
-
+	#[Route('/list-products', name:'list-products')]
+	public function displayListProducts(ProductRepository $productRepository) {
 		
-		$product = $ProductRepository->findAll();
+		$productsPublished = $productRepository->findBy(['isPublished' => true]);
 
-		return $this->render('guest/list-product.html.twig', [
-			'products' => $product
+		return $this->render('guest/product/list-products.html.twig', [
+			'products' => $productsPublished
 		]);
-
 	}
 
-
-	#[Route('/details-product/{id}', name: "details-product")]
-	public function displayDetailsProducts($id, ProductRepository $productRepository) {
-
+	#[Route('/details-product/{id}', name:'details-product')]
+	public function displayDetailsProduct(ProductRepository $productRepository, $id) {
+		
 		$product = $productRepository->find($id);
 
-		return $this->render('guest/details-product.html.twig', [
+		return $this->render('guest/product/details-product.html.twig', [
 			'product' => $product
 		]);
+
 	}
 
 }
