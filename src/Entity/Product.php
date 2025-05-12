@@ -41,6 +41,10 @@ class Product
           if (strlen($title) < 3) {
             throw new Exception('Le titre doit faire plus de 3 caractères');
         }
+           if ($price > 250) {
+            throw new Exception('Le prix doit être inférieur à 250');
+        }
+
 
         $this->title = $title;
         $this->description = $description;
