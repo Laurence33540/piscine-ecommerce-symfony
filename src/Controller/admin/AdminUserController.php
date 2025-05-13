@@ -9,14 +9,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminUserController extends AbstractController {
 
-#[Route('/admin/create-user', name: 'admin-create-user')]
-	public function displayCreateUser(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager){
-
+#[Route(path: '/admin/create-user', name: 'admin-create-user', methods: ['GET', 'POST'] )]
+	public function displayCreateUser(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response{
 
 		if ($request->isMethod('POST')) {
 
@@ -39,6 +40,7 @@ class AdminUserController extends AbstractController {
 				$entityManager->persist($user);
 				$entityManager->flush();
 				$this->addFlash('success','Admin créé');
+				return $this->redirectToRoute('admin-list-admins');
 
 			} catch(Exception $exception) {
 
@@ -54,13 +56,13 @@ class AdminUserController extends AbstractController {
 
 		}
 
-
 		return $this->render('/admin/user/create-user.html.twig');
 
 	}
 
-#[Route(path: '/admin/list-admins', name: 'admin-list-admins')]
-	public function displayListAdmins(UserRepository $userRepository) {
+
+	#[Route(path: '/admin/list-admins', name: 'admin-list-admins', methods:['GET'])]
+	public function displayListAdmins(UserRepository $userRepository): Response{
 
 		$users = $userRepository->findAll();
 

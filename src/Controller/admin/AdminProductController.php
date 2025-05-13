@@ -8,15 +8,16 @@ use App\Entity\Product;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AdminProductController extends AbstractController {
 
-
-	#[Route('/admin/create-product', name: 'admin-create-product')]
-	public function displayCreateProduct(CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $entityManager) {
+#[Route('/admin/create-product', name: 'admin-create-product', methods: ['GET', 'POST'])]
+	public function displayCreateProduct(CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $entityManager):Response {
 
 		if ($request->isMethod('POST')) {
 
@@ -38,7 +39,11 @@ class AdminProductController extends AbstractController {
 
 				$entityManager->persist($product);
 				$entityManager->flush();
-			} catch (\Exception $exception) {
+
+				$this->addFlash('success', 'Produit créé');
+
+				return $this->redirectToRoute('admin-list-products');
+			} catch (Exception $exception) {
 				$this->addFlash('error', $exception->getMessage());
 			}
 
@@ -53,8 +58,8 @@ class AdminProductController extends AbstractController {
 	}
 
 
-	#[Route('/admin/list-products', name: 'admin-list-products')]
-	public function displayListProducts(ProductRepository $productRepository) {
+	#[Route('/admin/list-products', name: 'admin-list-products', methods: ['GET'])]
+	public function displayListProducts(ProductRepository $productRepository): Response {
 
 		$products = $productRepository->findAll();
 
@@ -63,24 +68,37 @@ class AdminProductController extends AbstractController {
 		]);
 	}
 
-	#[Route('/admin/delete-product/{id}', name:'admin-delete-product')]
-	public function deleteProduct($id, ProductRepository $productRepository, EntityManagerInterface $entityManager) {
+
+	#[Route('/admin/delete-product/{id}', name:'admin-delete-product', methods: ['GET'])]
+	public function deleteProduct(int $id, ProductRepository $productRepository, EntityManagerInterface $entityManager):Response {
 		
 		$product = $productRepository->find($id);
 
-		$entityManager->remove($product);
-		$entityManager->flush();
+		if(!$product) {
+			return $this->redirectToRoute('admin_404');
+		}
 
-		$this->addFlash('success', 'Produit supprimé !');
+		try {
+			$entityManager->remove($product);
+			$entityManager->flush();
+
+			$this->addFlash('success', 'Produit supprimé !');
+
+		} catch(Exception $exception) {
+			$this->addFlash('error', 'Impossible de supprimer le produit');
+		}
 
 		return $this->redirectToRoute('admin-list-products');
-
 	}
 
-   #[Route('/admin/update-product/{id}', name: 'admin-update-product')]
-	public function displayUpdateProduct($id, ProductRepository $productRepository, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $entityManager) {
+	#[Route('/admin/update-product/{id}', name: 'admin-update-product', methods: ['GET', 'POST'])]
+	public function displayUpdateProduct(int $id, ProductRepository $productRepository, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $entityManager): Response {
 
 		$product = $productRepository->find($id);
+
+		if(!$product) {
+			return $this->redirectToRoute('admin_404');
+		}
 
 		if ($request->isMethod('POST')) {
 
@@ -106,6 +124,7 @@ class AdminProductController extends AbstractController {
 			//$product->setUpdatedAt(new \DateTime())
 
 			// méthode 2 : modifier les données d'un produit avec une fonction update dans l'entité
+
 			try {
 				$product->update($title, $description, $price, $isPublished, $category);	
 
