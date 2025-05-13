@@ -4,7 +4,9 @@
 namespace App\Controller\admin;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -12,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AdminUserController extends AbstractController {
 
-	#[Route('/admin/create-user', name: 'admin-create-user')]
+#[Route('/admin/create-user', name: 'admin-create-user')]
 	public function displayCreateUser(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager){
 
 
@@ -25,7 +27,7 @@ class AdminUserController extends AbstractController {
 
 			$passwordHashed = $userPasswordHasher->hashPassword($user, $password);
 
-// méthode 1
+			// méthode 1
 			//$user->setPassword($passwordHashed);
 			//$user->setEmail($email);
 			// $user->setRoles(['ROLE_ADMIN']);
@@ -33,10 +35,22 @@ class AdminUserController extends AbstractController {
 			// méthode 2 
 			$user->createAdmin($email, $passwordHashed);
 
-			$entityManager->persist($user);
-			$entityManager->flush();
+			try {
+				$entityManager->persist($user);
+				$entityManager->flush();
+				$this->addFlash('success','Admin créé');
 
-            $this->addFlash('success','Admin créé');
+			} catch(Exception $exception) {
+
+				$this->addFlash('error', 'Impossible de créer l\'admin');
+
+				// si l'erreur vient de la clé d'unicité, je créé un message flash ciblé
+				if ($exception->getCode() === '1062') {
+					$this->addFlash('error',  'Email déjà pris.');
+				}
+				
+			}
+
 
 		}
 
@@ -44,6 +58,17 @@ class AdminUserController extends AbstractController {
 		return $this->render('/admin/user/create-user.html.twig');
 
 	}
+
+#[Route(path: '/admin/list-admins', name: 'admin-list-admins')]
+	public function displayListAdmins(UserRepository $userRepository) {
+
+		$users = $userRepository->findAll();
+
+		return $this->render('/admin/user/list-users.html.twig', [
+			'users' => $users
+		]);
+	}
+
 
 
 }
